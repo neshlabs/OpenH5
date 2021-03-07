@@ -1,0 +1,65 @@
+﻿syntax = "proto3";
+package nesh;
+import "bcl.proto"; // schema for protobuf-net's handling of core .NET types
+
+message Entity {
+   string Type = 2;
+   Nuid Id = 3;
+   map<string,Field> _Fields = 4;
+   map<string,Table> _Tables = 5;
+}
+message Field {
+   string Name = 6;
+   Var Var = 7;
+}
+message NList {
+   repeated Var _List = 1;
+}
+message Nuid {
+   int64 Unique = 1;
+   int64 Origin = 2;
+}
+message Table {
+   string Name = 8;
+   map<int64,NList> _RowValues = 9;
+}
+message Var {
+   oneof subtype {
+      Var_Boolean Var_Boolean = 3;
+      Var_Int32 Var_Int32 = 4;
+      Var_Single Var_Single = 5;
+      Var_Int64 Var_Int64 = 6;
+      Var_String Var_String = 7;
+      Var_DateTime Var_DateTime = 8;
+      Var_Nuid Var_Nuid = 9;
+      Var_Entity Var_Entity = 10;
+      Var_NList Var_NList = 11;
+   }
+}
+message Var_Boolean {
+   bool Value = 2;
+}
+message Var_DateTime {
+   .bcl.DateTime Value = 2;
+}
+message Var_Entity {
+   Entity Value = 2;
+}
+message Var_Int32 {
+   int32 Value = 2;
+}
+message Var_Int64 {
+   int64 Value = 2;
+}
+message Var_NList {
+   NList Value = 2;
+}
+message Var_Nuid {
+   Nuid Value = 2;
+}
+message Var_Single {
+   float Value = 2;
+}
+message Var_String {
+   string Value = 2;
+}

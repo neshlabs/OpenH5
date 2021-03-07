@@ -1,0 +1,23 @@
+{
+    "root": 
+    [
+        {
+            "type": "player",
+            "path": "entity/player.json",
+            "priority": 1
+        },
+        {
+            "type": "item",
+            "path": "entity/item.json",
+            "priority": 1,
+            "children": 
+            [
+                {
+                    "type": "equip",
+                    "path": "entity/equip.json",
+                    "priority": 1
+                }
+            ]
+        }
+    ]
+}

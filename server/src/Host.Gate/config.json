@@ -1,0 +1,41 @@
+{
+  //address∫Õport≈‰÷√
+  "WebSocket": {
+    "ssl": "false",
+    "port": "8080",
+    "path": "/websocket",
+    "libuv": "false",
+    "password": "password"
+  },
+  //Orleans≈‰÷√
+  "Orleans": {
+    "ClusterId": "Cluster",
+    "ServiceId": "Service",
+    "HostName": "127.0.0.1",
+    "SiloPort": 11111,
+    "GatewayPort": 30000,
+    "Database": "orleans",
+    "Connection": "mongodb://localhost:27017/"
+  },
+  "Serilog": {
+    "Using": [ "Serilog.Sinks.Console" ],
+    "MinimumLevel": "Information",
+    "WriteTo": [
+      {
+        "Name": "Async",
+        "Args": {
+          "configure": [
+            { "Name": "Console" },
+            {
+              "Name": "File",
+              "Args": {
+                "path": "logs/console.log",
+                "rollingInterval": "Day"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

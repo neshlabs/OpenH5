@@ -1,0 +1,44 @@
+{
+    "fields": [
+        {
+            "name": "entry",
+            "type": "Int",
+            "save": true,
+            "sync": true,
+            "desc": "编号"
+        },
+        {
+            "name": "count",
+            "type": "Int",
+            "save": true,
+            "sync": true,
+            "desc": "数量"
+        }
+    ],
+    "tables": [
+        {
+            "name": "star_table",
+            "save": true,
+            "sync": true,
+            "desc": "强化表",
+            "cols": 2,
+            "columns": [
+                {
+                    "index": 0,
+                    "name": "id",
+                    "type": "Int",
+                    "desc": "编号"
+                },
+                {
+                    "index": 1,
+                    "name": "star",
+                    "type": "Int",
+                    "desc": "星"
+                }
+            ]
+        }
+    ],
+    "includes": [
+        
+    ]
+}

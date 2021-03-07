@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+    <PackageReference Include="Serilog.Extensions.Hosting" Version="4.1.0" />
+    <PackageReference Include="Microsoft.Orleans.ProtobufNet" Version="3.4.1" />
+    <PackageReference Include="Microsoft.Orleans.Client" Version="3.4.1" />
+    <PackageReference Include="MongoDB.Driver" Version="2.12.0" />
+    <PackageReference Include="Orleans.Providers.MongoDB" Version="3.2.0" />
+    <PackageReference Include="protobuf-net" Version="3.0.73" />
+    <PackageReference Include="Serilog.Extensions.Hosting" Version="4.1.2" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="3.2.0-dev-00264" />
+    <PackageReference Include="Serilog.Sinks.Async" Version="1.4.1-dev-00073" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0-dev-00839" />
+    <PackageReference Include="SpanNetty.Codecs" Version="0.7.2012.2221" />
+    <PackageReference Include="SpanNetty.Codecs.Http" Version="0.7.2012.2221" />
+    <PackageReference Include="SpanNetty.Transport" Version="0.7.2012.2221" />
+    <PackageReference Include="SpanNetty.Transport.Libuv" Version="0.7.2012.2221" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Nesh.Core\Nesh.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="config.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

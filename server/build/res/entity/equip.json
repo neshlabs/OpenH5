@@ -1,0 +1,17 @@
+{
+    "fields": [
+        {
+            "name": "color",
+            "type": "Int",
+            "save": true,
+            "sync": true,
+            "desc": "编号"
+        }
+    ],
+    "tables": [
+        
+    ],
+    "includes": [
+        
+    ]
+}

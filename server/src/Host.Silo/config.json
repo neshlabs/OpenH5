@@ -1,0 +1,61 @@
+{
+  "RedisCache": {
+    "Connection": "localhost",
+    "Port": 6379,
+    "EntityDBs" : 4
+  },
+
+  "MongoPersist": {
+    "Connection": "mongodb://localhost:27017",
+    "EntityDB": "entity"
+  },
+
+  "Orleans": {
+    "ClusterId": "Cluster",
+    "ServiceId": "Service",
+    "HostName": "127.0.0.1",
+    "SiloPort": 11111,
+    "GatewayPort": 30000,
+    "Database": "orleans",
+    "Connection": "mongodb://localhost:27017/"
+  },
+
+  "Serilog": {
+    "Using": [
+      "Serilog.Sinks.Console",
+      "Serilog.Enrichers.Environment",
+      "Serilog.Enrichers.Process"
+    ],
+    "Enrich": [
+      "FromLogContext",
+      "WithMachineName",
+      "WithProcessId"
+    ],
+    "MinimumLevel": "Information",
+    "WriteTo": [
+      {
+        "Name": "Async",
+        "Args": {
+          "configure": [
+            { "Name": "Console" },
+            {
+              "Name": "MongoDB",
+              "Args": {
+                "databaseUrl": "mongodb://localhost:27017/logs",
+                "collectionName": "host_logs"
+              }
+            },
+            {
+              "Name": "File",
+              "Args": {
+                "path": "logs/console.log",
+                "rollingInterval": "Day"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "AllowedHosts": "*"
+}
