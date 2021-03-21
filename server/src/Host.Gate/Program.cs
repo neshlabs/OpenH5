@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Nesh.Core.Data;
 using Orleans;
 using Orleans.Hosting;
 using Serilog;
@@ -29,8 +30,7 @@ namespace Host.Gate
   \  \:\  /:/   \  \::/      \__\/  \:\   \  \::/ /:/   \  \::/       \  \:\  /:/   \  \::/ /:/  \__\/  \:\ 
    \  \:\/:/     \  \:\           \  \:\   \  \:\/:/     \  \:\        \  \:\/:/     \__\/ /:/        \  \:\
     \  \::/       \  \:\           \__\/    \  \::/       \  \:\        \  \::/        /__/:/          \__\/
-     \__\/         \__\/                     \__\/         \__\/         \__\/         \__\/                
-           ");
+     \__\/         \__\/                     \__\/         \__\/         \__\/         \__\/                ");
 
             CreateHostBuilder(args).Build().Run();
         }
@@ -44,16 +44,30 @@ namespace Host.Gate
             Configuration = configurationBuilder.Build();
         }
 
+        private static void LoadGameConfigs()
+        {
+            string directory = Environment.CurrentDirectory;
+            int index = directory.IndexOf("src");
+            if (index > -1)
+                directory = directory.Remove(index, directory.Length - index);
+
+            string res_path = Path.Combine(directory, "build/res");
+
+            Prefabs.Load(res_path);
+        }
+
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
             LoadConfiguration();
 
+            LoadGameConfigs();
+
             return Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder(args)
                 .ConfigureServices(services =>
                 {
-                    services.AddSingleton<ClusterHostedService>();
-                    services.AddSingleton<IHostedService>(_ => _.GetService<ClusterHostedService>());
-                    services.AddSingleton(_ => _.GetService<ClusterHostedService>().Client);
+                    services.AddSingleton<OrleansService>();
+                    services.AddSingleton<IHostedService>(_ => _.GetService<OrleansService>());
+                    services.AddSingleton(_ => _.GetService<OrleansService>().Client);
 
                     services.AddHostedService<WebSocketService>();
                     services.Configure<ConsoleLifetimeOptions>(options =>

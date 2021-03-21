@@ -92,7 +92,7 @@ namespace Nesh.Engine.Node
             }
         }
 
-        public async Task SetRow(Nuid id, string table_name, long row, NList value)
+        public async Task SetRowValue(Nuid id, string table_name, long row, NList value)
         {
             if (NList.IsEmpty(value)) return;
 
@@ -130,7 +130,7 @@ namespace Nesh.Engine.Node
                 else
                 {
                     INode node = GrainFactory.GetGrain<INode>(id.Origin);
-                    await node.SetRow(id, table_name, row, value);
+                    await node.SetRowValue(id, table_name, row, value);
                 }
             }
         }

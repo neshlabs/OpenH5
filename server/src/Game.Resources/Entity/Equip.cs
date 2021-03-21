@@ -7,7 +7,7 @@
         public new class Fields : Item.Fields
         {
             /// <summary>
-            /// 编号 Int Save=True Sync=True
+            /// 品质等级 Int Save=True Sync=True
             /// </summary>
             public const string COLOR = "color";
         }

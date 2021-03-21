@@ -6,8 +6,7 @@
   },
 
   "MongoPersist": {
-    "Connection": "mongodb://localhost:27017",
-    "EntityDB": "entity"
+    "Connection": "mongodb://localhost:27017"
   },
 
   "Orleans": {
@@ -41,15 +40,8 @@
             {
               "Name": "MongoDB",
               "Args": {
-                "databaseUrl": "mongodb://localhost:27017/logs",
-                "collectionName": "host_logs"
-              }
-            },
-            {
-              "Name": "File",
-              "Args": {
-                "path": "logs/console.log",
-                "rollingInterval": "Day"
+                "databaseUrl": "mongodb://localhost:27017/log",
+                "collectionName": "slio"
               }
             }
           ]

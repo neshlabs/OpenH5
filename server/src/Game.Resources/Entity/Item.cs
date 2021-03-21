@@ -7,11 +7,11 @@
         public class Fields
         {
             /// <summary>
-            /// 编号 Int Save=True Sync=True
+            /// 道具编号 Int Save=True Sync=True
             /// </summary>
             public const string ENTRY = "entry";
             /// <summary>
-            /// 数量 Int Save=True Sync=True
+            /// 堆叠数量 Int Save=True Sync=True
             /// </summary>
             public const string COUNT = "count";
         }
@@ -21,18 +21,18 @@
             public class StarTable
             {
                 /// <summary>
-                /// 强化表 Save=True Sync=True
+                /// 强化星级表 Save=True Sync=True
                 /// </summary>
                 public const string TABLE_NAME = "star_table";
 
                 /// <summary>
-                /// 编号 Int
+                /// 强化编号 Int
                 /// </summary>
                 public const int COL_ID = 0;
                 /// <summary>
-                /// 星 Int
+                /// 强化等级 Int
                 /// </summary>
-                public const int COL_STAR = 1;
+                public const int COL_LEVEL = 1;
             }
 
         }

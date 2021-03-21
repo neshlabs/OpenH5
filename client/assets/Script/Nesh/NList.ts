@@ -1,7 +1,7 @@
-import 'reflect-metadata';
+//import 'reflect-metadata';
 import { jsonObject, jsonMember, TypedJSON, jsonArrayMember, jsonMapMember, AnyT } from 'typedjson';
 
-enum VarType 
+export enum VarType 
 {
     None      = 'None',
     Bool      = 'Bool',
@@ -28,8 +28,13 @@ class Var
 @jsonObject
 export default class NList
 {
-    @jsonArrayMember(Var)
-    public _List: Array<Var> = [];
+    @jsonArrayMember(()=>Var)
+    public _List: Array<Var>;
+
+    constructor()
+    {
+        this._List = new Array<Var>();
+    }
 
     public static New() : NList
     {
@@ -45,13 +50,30 @@ export default class NList
 
     public static AsList(json: string) : NList
     {
-        return TypedJSON.parse(json, NList);
+        const lstJSON = new TypedJSON(NList);
+
+        //lstJSON.mapType(Entity, {});
+        //lstJSON.mapType(Field, {});
+        //lstJSON.mapType(Table, {});
+        return lstJSON.parse(json);
     }
 
     public Append(lst: NList) : NList
     {
         this._List.concat(lst._List);
         return this;
+    }
+
+    public GetRange(index: number, count: number) : NList
+    {
+        let newlst = new NList();
+        for(let i=0; i<count; i++) 
+        {
+            let found = i + index;
+            newlst._List.push(this._List[found]);
+        }
+
+        return newlst;
     }
 
     public AddBool(value: boolean) : NList
@@ -233,12 +255,20 @@ export class Nuid
     public Origin: number;
 
     equals(other: Nuid): boolean {
-        return (other.Origin === this.Origin) && (other.Unique === this.Unique);
+        return (other.Origin == this.Origin) && (other.Unique == this.Unique);
     }
 
     toString(): string
     {
         return this.Unique + ":" + this.Origin;
+    }
+
+    static New(unique:number, origin:number) : Nuid
+    {   
+        let nuid = new Nuid();
+        nuid.Unique = unique;
+        nuid.Origin = origin;
+        return nuid;
     }
 }
 
@@ -258,7 +288,7 @@ export class Table
     @jsonMember(String)
     public Name: string;
 
-    @jsonMapMember(Number, NList)
+    @jsonMapMember(Number, ()=>NList)
     public _RowValues: Map<number, NList>;
 }
 

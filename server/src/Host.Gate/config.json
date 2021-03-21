@@ -18,7 +18,16 @@
     "Connection": "mongodb://localhost:27017/"
   },
   "Serilog": {
-    "Using": [ "Serilog.Sinks.Console" ],
+    "Using": [
+      "Serilog.Sinks.Console",
+      "Serilog.Enrichers.Environment",
+      "Serilog.Enrichers.Process"
+    ],
+    "Enrich": [
+      "FromLogContext",
+      "WithMachineName",
+      "WithProcessId"
+    ],
     "MinimumLevel": "Information",
     "WriteTo": [
       {
@@ -27,10 +36,10 @@
           "configure": [
             { "Name": "Console" },
             {
-              "Name": "File",
+              "Name": "MongoDB",
               "Args": {
-                "path": "logs/console.log",
-                "rollingInterval": "Day"
+                "databaseUrl": "mongodb://localhost:27017/logzifh",
+                "collectionName": "gate"
               }
             }
           ]

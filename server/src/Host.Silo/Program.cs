@@ -3,9 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Nesh.Core;
+using Nesh.Core.Auth;
 using Nesh.Core.Data;
-using Nesh.Core.Manager;
-using Nesh.Core.Utils;
 using Nesh.Engine.Node;
 using Nesh.Engine.Utils;
 using Orleans;
@@ -45,35 +44,8 @@ namespace Host.Silo
 
             IConfiguration config = configurationBuilder.Build();
             CacheUtils.EntityDBs = int.Parse(config.GetSection("RedisCache")["EntityDBs"]);
-            PersistUtils.Connection = config.GetSection("MongoPersist")["Connection"];
-            PersistUtils.EntityDB = config.GetSection("MongoPersist")["EntityDB"];
-            PersistUtils.Init();
 
             Configuration = config;
-        }
-
-        private static void LoadGameConfigs()
-        {
-            string directory = Environment.CurrentDirectory;
-            int index = directory.IndexOf("src");
-            if (index > -1)
-                directory = directory.Remove(index, directory.Length - index);
-
-            string res_path = Path.Combine(directory, "build/res");
-
-            DefineManager.Load(res_path);
-        }
-
-        private static void LoadModules()
-        {
-            var moduels = from t in Assembly.Load("Game.Modules").GetTypes()
-                          where Global.IsSubClassOf(t, typeof(NModule))
-                          select t;
-
-            foreach (Type type in moduels)
-            {
-                NModule.LoadModule(type);
-            }
         }
 
         static async Task StopSilo()
@@ -93,8 +65,6 @@ namespace Host.Silo
             };
 
             LoadConfiguration();
-            LoadGameConfigs();
-            LoadModules();
 
             if (GCSettings.IsServerGC)
             {
@@ -114,8 +84,7 @@ namespace Host.Silo
   \  \::/ /:/      \__\::/   \  \:\/:/    \  \:\  /:/   \  \::/       \  \:\  /:/   \  \::/ /:/  \__\/  \:\ 
    \__\/ /:/       /__/:/     \  \::/      \  \:\/:/     \  \:\        \  \:\/:/     \__\/ /:/        \  \:\
      /__/:/        \__\/       \__\/        \  \::/       \  \:\        \  \::/        /__/:/          \__\/
-     \__\/                                   \__\/         \__\/         \__\/         \__\/                
-           ");
+     \__\/                                   \__\/         \__\/         \__\/         \__\/                ");
 
             Console.WriteLine("Hello Nesh!");
 
@@ -163,8 +132,6 @@ namespace Host.Silo
                })
                .Configure<EndpointOptions>(options => options.AdvertisedIPAddress = IPAddress.Loopback)
                .UseMongoDBClient(Configuration.GetSection("Orleans")["Connection"])
-               .AddSimpleMessageStreamProvider("JobsProvider")
-               .AddSimpleMessageStreamProvider("TransientProvider")
                .UseMongoDBReminders(options =>
                {
                    options.DatabaseName = Configuration.GetSection("Orleans")["Database"];
@@ -174,7 +141,6 @@ namespace Host.Silo
                 {
                     c.DatabaseName = Configuration.GetSection("Orleans")["Database"];
                     c.CreateShardKeyForCosmos = false;
-                    // c.UseJsonFormat = true;
                 })
                 .AddMongoDBGrainStorageAsDefault(c => c.Configure(options =>
                 {
@@ -193,18 +159,22 @@ namespace Host.Silo
                         .CreateLogger());
                 })
                 .AddStartupTask<NStartupTask>()
-                .ConfigureApplicationParts(parts => parts
-                .AddApplicationPart(typeof(Node).Assembly).WithReferences())
+                .ConfigureApplicationParts(parts =>
+                {
+                    parts.AddFromApplicationBaseDirectory().WithReferences();
+                })
+                //.AddApplicationPart(typeof(Node).Assembly).WithReferences())
                 .ConfigureServices(services =>
                 {
                     services.AddStackExchangeRedisExtensions<ProtobufSerializer>(conf);
-                    services.AddSingleton<MongoDB.Driver.IMongoClient>(s => new MongoDB.Driver.MongoClient(PersistUtils.Connection));
+                    string connection = Configuration.GetSection("MongoPersist")["Connection"];
+                    services.AddSingleton<MongoDB.Driver.IMongoClient>(s => new MongoDB.Driver.MongoClient(connection));
                 })
                 //need to configure a grain storage called "PubSubStore" for using streaming with ExplicitSubscribe pubsub type
-                .AddMemoryGrainStorage("PubSubStore")
+                //.AddMemoryGrainStorage("PubSubStore")
                 //Depends on your application requirements, you can configure your silo with other stream providers, which can provide other features, 
                 //such as persistence or recoverability. For more information, please see http://dotnet.github.io/orleans/Documentation/Orleans-Streams/Stream-Providers.html
-                .AddSimpleMessageStreamProvider("ClientStream");
+                .AddSimpleMessageStreamProvider(StreamProviders.AgentProvider);
 
             var host = builder.Build();
             await host.StartAsync();
@@ -255,65 +225,43 @@ namespace Host.Silo
     public class NStartupTask : IStartupTask
     {
         private readonly IGrainFactory _GrainFactory;
+        private readonly IConfiguration _Configuration;
 
-        public NStartupTask(IGrainFactory grain_factory)
+        public NStartupTask(IGrainFactory grain_factory, IConfiguration config)
         {
             _GrainFactory = grain_factory;
+            _Configuration = config;
         }
 
-        /*public Task Execute(CancellationToken cancellationToken)
+        private static void LoadGameConfigs()
         {
-            return Task.CompletedTask;
-        }*/
+            string directory = Environment.CurrentDirectory;
+            int index = directory.IndexOf("src");
+            if (index > -1)
+                directory = directory.Remove(index, directory.Length - index);
 
-        public async Task Execute(CancellationToken cancellationToken)
+            string res_path = Path.Combine(directory, "build/res");
+
+            Prefabs.Load(res_path);
+        }
+
+        private static void LoadModules()
         {
-            long id2 = IdUtils.UGen.CreateId();
-            NList lst = NList.New().Add(Nuid.New(id2, id2)).Add(TimeUtils.Now).Add(true);
+            var moduels = from t in Assembly.Load("Game.Modules").GetTypes()
+                          where Global.IsSubClassOf(t, typeof(NModule))
+                          select t;
 
-            string json = JsonUtils.ToJson(lst);
-
-            NList LST2 = JsonUtils.ToObject<NList>(json);
-            long id1 = 12058624;
-
-            INode node1 = _GrainFactory.GetGrain<INode>(id1);
-            //int level = await node1.GetField<int>(Nuid.New(3282567168, 3282567168), "level");
-            Nuid nuid1 = await node1.Create(Nuid.New(id1, id1), "player", NList.Empty);
-
-            await node1.SetField(Nuid.New(12058624, 12058624), "ticks", NList.New().Add(Nuid.New(id2, id2)).Add(TimeUtils.Now).Add(true));
-
-            NList res = await node1.GetField<NList>(Nuid.New(12058624, 12058624), "ticks");
-
-            Nuid nuid2 = Nuid.New(12058624, 12058624);
-            NList args = NList.New().Add(Nuid.New(id2, id2)).Add(TimeUtils.Now).Add(true);
-
-            DateTime d1 = DateTime.Now;
-            int i = 0;
-            for (i = 0; i < 10000; i++)
+            foreach (Type type in moduels)
             {
-                await node1.SetField(nuid2, "ticks", args);
+                NModule.LoadModule(type);
             }
+        }
 
-            DateTime d2 = DateTime.Now;
-            TimeSpan ts = d2 - d1;
-            double ll = ts.TotalMilliseconds;
-
-            Console.WriteLine("ll=" + ll + "i=" + i);
-
-            NList list = await node1.GetEntities();
-
-            string json2 = JsonUtils.ToJson(list);
-
-            //await node1.Deactive();
-
-            //await node1.Active();
-
-            //long id2 = IdUtils.UGen.CreateId();
-            //Nuid nuid2 = await node1.Create(Nuid.New(id2, id2), "player", NList.Empty);
-
-            //await node1.Command(nuid1, 1, NList.New().Add(nuid2));
-
-            //return Task.CompletedTask;
+        public Task Execute(CancellationToken cancellationToken)
+        {
+            LoadGameConfigs();
+            LoadModules();
+            return Task.CompletedTask;
         }
     }
 }

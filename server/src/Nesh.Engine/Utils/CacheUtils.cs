@@ -9,13 +9,14 @@ namespace Nesh.Engine.Utils
 
         public const string MARK_FIELDS = "fields";
         public const string MARK_TABLES = "tables";
+        public const string MARK_ENTITIES = "entities";
 
         public static string BuildEntities(Nuid entity_id)
         {
             StringBuilder key = new StringBuilder();
             key.Append(entity_id.Origin);
             key.Append(Global.NUID_MEMBERS_FLAG);
-            key.Append("entities");
+            key.Append(MARK_ENTITIES);
 
             return key.ToString();
         }

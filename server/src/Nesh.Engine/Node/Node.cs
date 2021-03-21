@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using Nesh.Core;
+using Nesh.Core.Auth;
 using Nesh.Core.Data;
 using Nesh.Core.Manager;
 using Nesh.Core.Utils;
@@ -15,22 +16,25 @@ namespace Nesh.Engine.Node
 {
     public partial class Node : Grain, INode
     {
-        private EntityManager EntityManager { get; set; }
-
-        private EventManager<SyncType> SyncManager { get; set; }
-
-        private TimerManager TimerManager { get; set; }
+        private IAgent Agent { get; set; }
 
         private long Identity { get; set; }
 
         private bool Activated { get; set; }
 
+        private ILogger _Logger { get; set; }
+
+        private IDisposable _TimerObj { get; set; }
+
+        private TimerManager TimerManager { get; set; }
+
+        private EntityManager EntityManager { get; set; }
+
+        private EventManager<SyncType> SyncManager { get; set; }
+
         private List<NList> BatchCahceList { get; set; }
 
-        protected ILogger _Logger = null;
-
-        private IRedisCacheClient _CacheClient;
-        private IDisposable _TimerObj = null;
+        private IRedisCacheClient _CacheClient { get; set; }
 
         public Task<bool> IsActive()
         {
@@ -50,6 +54,13 @@ namespace Nesh.Engine.Node
         public async Task Deactive()
         {
             await Persist();
+        }
+
+        public Task BindAgent(IAgent agent)
+        {
+            Agent = agent;
+
+            return Task.CompletedTask;
         }
 
         IMongoClient _IMongoClient;
@@ -103,17 +114,17 @@ namespace Nesh.Engine.Node
                 entity_type = await GetCacheType(id);
             }
 
-            entity_def entity_def = DefineManager.GetEntity(entity_type);
-            if (entity_def == null)
+            EntityPrefab entity_prefab = Prefabs.GetEntity(entity_type);
+            if (entity_prefab == null)
             {
                 return;
             }
 
-            if (entity_def.ancestors != null && entity_def.ancestors.Count > 0)
+            if (entity_prefab.ancestors != null && entity_prefab.ancestors.Count > 0)
             {
-                for (int i = entity_def.ancestors.Count - 1; i >= 0; i--)
+                for (int i = entity_prefab.ancestors.Count - 1; i >= 0; i--)
                 {
-                    string parent_type = entity_def.ancestors[i];
+                    string parent_type = entity_prefab.ancestors[i];
 
                     await NModule.CallbackEntity(this, id, parent_type, entity_event, args);
                 }
@@ -138,17 +149,17 @@ namespace Nesh.Engine.Node
                 entity_type = await GetCacheType(id);
             }
 
-            entity_def entity_def = DefineManager.GetEntity(entity_type);
-            if (entity_def == null)
+            EntityPrefab entity_prefab = Prefabs.GetEntity(entity_type);
+            if (entity_prefab == null)
             {
                 return;
             }
 
-            if (entity_def.ancestors != null && entity_def.ancestors.Count > 0)
+            if (entity_prefab.ancestors != null && entity_prefab.ancestors.Count > 0)
             {
-                for (int i = entity_def.ancestors.Count - 1; i >= 0; i--)
+                for (int i = entity_prefab.ancestors.Count - 1; i >= 0; i--)
                 {
-                    string parent_type = entity_def.ancestors[i];
+                    string parent_type = entity_prefab.ancestors[i];
 
                     await NModule.CallbackField(this, id, parent_type, field_name, field_event, args);
                 }
@@ -156,8 +167,8 @@ namespace Nesh.Engine.Node
 
             await NModule.CallbackField(this, id, entity_type, field_name, field_event, args);
 
-            field_def field_def = entity_def.GetField(field_name);
-            if (field_def != null && field_def.sync)
+            FieldPrefab field_prefab = entity_prefab.fields[field_name];
+            if (field_prefab != null && field_prefab.sync)
             {
                 NList msg = NList.New().Add(id).Add(field_name).Add((int)field_event).Append(args);
                 await SyncManager.Callback(SyncType.Field, this, id, msg);
@@ -177,17 +188,17 @@ namespace Nesh.Engine.Node
                 entity_type = await GetCacheType(id);
             }
 
-            entity_def entity_def = DefineManager.GetEntity(entity_type);
-            if (entity_def == null)
+            EntityPrefab entity_prefab = Prefabs.GetEntity(entity_type);
+            if (entity_prefab == null)
             {
                 return;
             }
 
-            if (entity_def.ancestors != null && entity_def.ancestors.Count > 0)
+            if (entity_prefab.ancestors != null && entity_prefab.ancestors.Count > 0)
             {
-                for (int i = entity_def.ancestors.Count - 1; i >= 0; i--)
+                for (int i = entity_prefab.ancestors.Count - 1; i >= 0; i--)
                 {
-                    string parent_type = entity_def.ancestors[i];
+                    string parent_type = entity_prefab.ancestors[i];
 
                     await NModule.CallbackTable(this, id, parent_type, table_name, table_event, args);
                 }
@@ -195,8 +206,8 @@ namespace Nesh.Engine.Node
 
             await NModule.CallbackTable(this, id, entity_type, table_name, table_event, args);
 
-            table_def table_def = entity_def.GetTable(table_name);
-            if (table_def != null && table_def.sync)
+            TablePrefab table_prefab = entity_prefab.tables[table_name];
+            if (table_prefab != null && table_prefab.sync)
             {
                 NList msg = NList.New().Add(id).Add(table_name).Add((int)table_event).Append(args);
                 await SyncManager.Callback(SyncType.Table, this, id, msg);

@@ -23,8 +23,8 @@ namespace Nesh.Engine.Node
                 persist_entity_list.entities.Add(new persist_entity() { unique = entity.Id.Unique, type = entity.Type });
             }
 
-            var database = _IMongoClient.GetDatabase(PersistUtils.EntityDB);
-            var collection = database.GetCollection<persist_entity_list>("entities");
+            var database = _IMongoClient.GetDatabase(PersistUtils.ENTITY_DB);
+            var collection = database.GetCollection<persist_entity_list>(PersistUtils.ENTITIES);
 
             var filter = Builders<persist_entity_list>.Filter.And(Builders<persist_entity_list>.Filter.Eq(n=> n.origin, Identity));
             persist_entity_list found = await collection.FindOneAndReplaceAsync(filter, persist_entity_list);

@@ -1,0 +1,9 @@
+<entity>
+    <fields>
+        <field name="color" type="Int" save="true" sync="true" desc="品质等级"/>
+    </fields>
+    <tables>
+    </tables>
+    <includes>
+    </includes>
+</entity>

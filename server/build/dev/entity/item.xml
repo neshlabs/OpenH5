@@ -1,0 +1,14 @@
+<entity>
+    <fields>
+        <field name="entry" type="Int" save="true" sync="true" desc="道具编号"/>
+        <field name="count" type="Int" save="true" sync="true" desc="堆叠数量"/>
+    </fields>
+    <tables>
+        <table name="star_table" save="true" sync="true" cols="2" desc="强化星级表">
+            <column index="0" name="id" type="Int" desc="强化编号"/>
+            <column index="1" name="level" type="Int" desc="强化等级"/>
+        </table>
+    </tables>
+    <includes>
+    </includes>
+</entity>

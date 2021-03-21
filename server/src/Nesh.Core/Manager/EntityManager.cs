@@ -50,51 +50,51 @@ namespace Nesh.Core.Manager
 
         private Entity Gen(string entity_type)
         {
-            entity_def entity_def = DefineManager.GetEntity(entity_type);
-            if (entity_def == null)
+            EntityPrefab entity_prefab = Prefabs.GetEntity(entity_type);
+            if (entity_prefab == null)
             {
                 return null;
             }
 
             Entity new_entity = new Entity();
-            new_entity.Type = entity_def.name;
+            new_entity.Type = entity_prefab.type;
 
-            foreach (field_def field_def in entity_def.all_fields)
+            foreach (FieldPrefab field in entity_prefab.fields.Values)
             {
-                switch (field_def.type)
+                switch (field.type)
                 {
                     case VarType.Bool:
-                        new_entity.CreateField(field_def.name, Global.NULL_BOOL);
+                        new_entity.CreateField(field.name, Global.NULL_BOOL);
                         break;
                     case VarType.Int:
-                        new_entity.CreateField(field_def.name, Global.NULL_INT);
+                        new_entity.CreateField(field.name, Global.NULL_INT);
                         break;
                     case VarType.Float:
-                        new_entity.CreateField(field_def.name, Global.NULL_FLOAT);
+                        new_entity.CreateField(field.name, Global.NULL_FLOAT);
                         break;
                     case VarType.Long:
-                        new_entity.CreateField(field_def.name, Global.NULL_LONG);
+                        new_entity.CreateField(field.name, Global.NULL_LONG);
                         break;
                     case VarType.String:
-                        new_entity.CreateField(field_def.name, Global.NULL_STRING);
+                        new_entity.CreateField(field.name, Global.NULL_STRING);
                         break;
                     case VarType.Nuid:
-                        new_entity.CreateField(field_def.name, Nuid.Empty);
+                        new_entity.CreateField(field.name, Nuid.Empty);
                         break;
                     case VarType.Time:
-                        new_entity.CreateField(field_def.name, DateTime.MinValue);
+                        new_entity.CreateField(field.name, DateTime.MinValue);
                         break;
                     case VarType.List:
-                        new_entity.CreateField(field_def.name, NList.Empty);
+                        new_entity.CreateField(field.name, NList.Empty);
                         break;
                     default:
                         break;
                 }
             }
 
-            foreach (table_def table_def in entity_def.all_tables)
+            foreach (TablePrefab table in entity_prefab.tables.Values)
             {
-                new_entity.CreateTable(table_def.name);
+                new_entity.CreateTable(table.name);
             }
 
             return new_entity;
@@ -145,8 +145,8 @@ namespace Nesh.Core.Manager
             List<Entity> list = _EntityDic.Values.ToList();
             list.Sort((x, y) =>
             {
-                entity_def entity_x = DefineManager.GetEntity(x.Type);
-                entity_def entity_y = DefineManager.GetEntity(y.Type);
+                EntityPrefab entity_x = Prefabs.GetEntity(x.Type);
+                EntityPrefab entity_y = Prefabs.GetEntity(y.Type);
 
                 if (entity_x.priority > entity_y.priority)
                     return -1;

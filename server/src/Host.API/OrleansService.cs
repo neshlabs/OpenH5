@@ -3,21 +3,20 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Orleans;
 using Orleans.Configuration;
-using Orleans.Hosting;
 using Orleans.Runtime;
 using Orleans.Serialization.ProtobufNet;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Host.Gate
+namespace Host.API
 {
-    public class ClusterHostedService : IHostedService
+    public class OrleansService : IHostedService
     {
-        private readonly ILogger<ClusterHostedService> _Logger;
+        private readonly ILogger<OrleansService> _Logger;
         private readonly IConfiguration _Config;
 
-        public ClusterHostedService(ILogger<ClusterHostedService> logger, ILoggerProvider loggerProvider, IConfiguration config)
+        public OrleansService(ILogger<OrleansService> logger, ILoggerProvider loggerProvider, IConfiguration config)
         {
             _Logger = logger;
             _Config = config;
@@ -45,8 +44,6 @@ namespace Host.Gate
                 //.ConfigureServices()
                 .ConfigureLogging(builder => builder.AddProvider(loggerProvider))
                 .ConfigureApplicationParts(parts => { parts.AddFromApplicationBaseDirectory().WithReferences(); })
-                .AddSimpleMessageStreamProvider("JobsProvider")
-                .AddSimpleMessageStreamProvider("TransientProvider")
                 .UseMongoDBClient(_Config.GetSection("Orleans")["Connection"])
                 .UseMongoDBClustering(options =>
                 {

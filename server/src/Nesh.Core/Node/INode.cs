@@ -1,4 +1,5 @@
-﻿using Nesh.Core.Data;
+﻿using Nesh.Core.Auth;
+using Nesh.Core.Data;
 using Orleans;
 using System.Threading.Tasks;
 
@@ -6,6 +7,8 @@ namespace Nesh.Core
 {
     public interface INode : IGrainWithIntegerKey
     {
+        Task BindAgent(IAgent agent);
+
         Task<bool> IsActive();
         Task Active();
         Task Deactive();
@@ -37,7 +40,7 @@ namespace Nesh.Core
         Task<INList> GetRowValue(Nuid id, string table_name, long row);
         Task<INList> GetRows(Nuid id, string table_name);
         Task<long> AddRow(Nuid id, string table_name, NList value);
-        Task SetRow(Nuid id, string table_name, long row, NList value);
+        Task SetRowValue(Nuid id, string table_name, long row, NList value);
         Task DelRow(Nuid id, string table_name, long row);
         Task ClearTable(Nuid id, string table_name);
         #endregion

@@ -8,11 +8,13 @@ namespace GenCodes
         {
             Console.WriteLine("Hello GenCodes!");
 
-            GenDef_CS.GenCodes();
+            GenPrefab_JSON.GenCodes();
 
-            GenDef_TS.GenCodes();
+            GenPrefab_CS.GenCodes();
 
-            GenProto.GenNList();
+            GenPrefab_TS.GenCodes();
+
+            //GenProto.GenNList();
 
             Console.WriteLine("End GenCodes!");
 

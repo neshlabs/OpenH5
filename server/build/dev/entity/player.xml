@@ -1,0 +1,19 @@
+<entity>
+    <fields>
+        <field name="level" type="Int" save="true" sync="true" desc="等级"/>
+        <field name="nick_name" type="String" save="true" sync="true" desc="名字"/>
+    </fields>
+    <tables>
+        <table name="objective_table" save="true" sync="true" cols="2" desc="目标表">
+            <column index="0" name="id" type="Int" desc="目标编号"/>
+            <column index="1" name="status" type="Int" desc="目标状态"/>
+        </table>
+        <table name="quest_table" save="true" sync="true" cols="3" desc="任务表">
+            <column index="0" name="id" type="Int" desc="任务编号"/>
+            <column index="1" name="status" type="Int" desc="任务状态"/>
+            <column index="2" name="accept_time" type="Time" desc="接受时间"/>
+        </table>
+    </tables>
+    <includes>
+    </includes>
+</entity>

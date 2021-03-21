@@ -3,17 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31019.35
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Host.Silo", "src\Host.Silo\Host.Silo.csproj", "{FA465379-F7E4-4B5A-AB56-01B20B098217}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Host.Silo", "src\Host.Silo\Host.Silo.csproj", "{FA465379-F7E4-4B5A-AB56-01B20B098217}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Host.Gate", "src\Host.Gate\Host.Gate.csproj", "{C06FE34F-46A9-401F-A018-58984649FA35}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Host.Gate", "src\Host.Gate\Host.Gate.csproj", "{C06FE34F-46A9-401F-A018-58984649FA35}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game.Modules", "src\Game.Modules\Game.Modules.csproj", "{314B581E-361C-4AAB-B150-559A9EA62657}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Game.Modules", "src\Game.Modules\Game.Modules.csproj", "{314B581E-361C-4AAB-B150-559A9EA62657}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game.Resources", "src\Game.Resources\Game.Resources.csproj", "{1C7F40EA-3F06-4F0E-AF55-FF6EA1B39887}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Game.Resources", "src\Game.Resources\Game.Resources.csproj", "{1C7F40EA-3F06-4F0E-AF55-FF6EA1B39887}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nesh.Core", "src\Nesh.Core\Nesh.Core.csproj", "{F4E0104C-BD32-4814-B374-11EDD95F4F8D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nesh.Core", "src\Nesh.Core\Nesh.Core.csproj", "{F4E0104C-BD32-4814-B374-11EDD95F4F8D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nesh.Engine", "src\Nesh.Engine\Nesh.Engine.csproj", "{FA49559C-F079-4885-ACA5-35718FCD155E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nesh.Engine", "src\Nesh.Engine\Nesh.Engine.csproj", "{FA49559C-F079-4885-ACA5-35718FCD155E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Host.API", "src\Host.API\Host.API.csproj", "{03969A2E-EF37-49DA-8440-949EEDD1D7C4}"
 EndProject
@@ -25,7 +25,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Nesh", "Nesh", "{7541BE6D-4
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tool", "Tool", "{C6A55210-E1A5-437E-8B9E-76665FB6B269}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenCodes", "tool\GenCodes\GenCodes.csproj", "{870A27C4-B077-4296-BD5D-583746013441}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenCodes", "tool\GenCodes\GenCodes.csproj", "{870A27C4-B077-4296-BD5D-583746013441}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nesh.Repository", "src\Nesh.Repository\Nesh.Repository.csproj", "{4A5985AA-BE6E-4AE0-976E-072634C47FC3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,6 +67,10 @@ Global
 		{870A27C4-B077-4296-BD5D-583746013441}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{870A27C4-B077-4296-BD5D-583746013441}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{870A27C4-B077-4296-BD5D-583746013441}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A5985AA-BE6E-4AE0-976E-072634C47FC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A5985AA-BE6E-4AE0-976E-072634C47FC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A5985AA-BE6E-4AE0-976E-072634C47FC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A5985AA-BE6E-4AE0-976E-072634C47FC3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -78,6 +84,7 @@ Global
 		{FA49559C-F079-4885-ACA5-35718FCD155E} = {7541BE6D-4431-4360-B348-E25CEA43AC57}
 		{03969A2E-EF37-49DA-8440-949EEDD1D7C4} = {3A43B38B-3913-4300-83CC-C110105A9228}
 		{870A27C4-B077-4296-BD5D-583746013441} = {C6A55210-E1A5-437E-8B9E-76665FB6B269}
+		{4A5985AA-BE6E-4AE0-976E-072634C47FC3} = {7541BE6D-4431-4360-B348-E25CEA43AC57}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {89919F39-9A19-490D-8CAF-5F1182998745}

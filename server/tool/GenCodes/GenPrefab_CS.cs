@@ -1,11 +1,11 @@
-﻿using Nesh.Core.Manager;
+﻿using Nesh.Core.Data;
 using System;
 using System.IO;
 using System.Text;
 
 namespace GenCodes
 {
-    static class GenDef_CS
+    static class GenPrefab_CS
     {
         public static void GenCodes()
         {
@@ -13,23 +13,18 @@ namespace GenCodes
             int index = directory.IndexOf("\\tool\\");
             directory = directory.Remove(index);
 
-            StringBuilder sb = new StringBuilder(directory);
-            sb.Append("/build/res/");
-
             StringBuilder out_folder = new StringBuilder(directory);
 
-            DefineManager.Load(sb.ToString());
-
-            foreach (entity_def entity_def in DefineManager.GetEntities())
+            foreach (XMLEntity entity in GenPrefab_JSON.GetEntities())
             {
-                GenEntityCode(entity_def, out_folder.ToString());
+                GenEntityCode(entity, out_folder.ToString());
             }
         }
 
-        private static void GenEntityCode(entity_def entity_def, string basepath)
+        private static void GenEntityCode(XMLEntity entity, string basepath)
         {
             string entity_path = basepath + GenUtils.RESOURCE_ENTITY_FOLDER;
-            string entity_type = GenUtils.FormatName(entity_def.name);
+            string entity_type = GenUtils.FormatName(entity.type);
             string filePath = entity_path + entity_type + ".cs";
 
             if (File.Exists(filePath))
@@ -51,13 +46,13 @@ namespace GenCodes
 
             sb.Append(GenUtils.str_tab);
 
-            string namespce_object = GenEntityNamespace(entity_def);
+            string namespce_object = GenEntityNamespace(entity);
             Console.WriteLine(namespce_object);
 
-            string Fields = GenEntityFields(entity_def);
+            string Fields = GenEntityFields(entity);
             Console.WriteLine(Fields);
 
-            string Tables = GenEntityTables(entity_def);
+            string Tables = GenEntityTables(entity);
             Console.WriteLine(Tables);
 
             sb.AppendLine(namespce_object);
@@ -74,9 +69,9 @@ namespace GenCodes
             fs.Close();
         }
 
-        private static string GetEntityParentFormat(this entity_def entity_def)
+        private static string GetEntityParentFormat(this EntityPrefab entity_prefab)
         {
-            string parent_name = entity_def.ancestors.Count > 0 ? entity_def.ancestors[0] : "";
+            string parent_name = entity_prefab.ancestors.Count > 0 ? entity_prefab.ancestors[0] : "";
 
             if (string.IsNullOrEmpty(parent_name))
             {
@@ -86,16 +81,16 @@ namespace GenCodes
             return GenUtils.FormatName(parent_name);
         }
 
-        private static string GetEntitySelfFormat(this entity_def entity_def)
+        private static string GetEntitySelfFormat(this EntityPrefab entity_prefab)
         {
-            return GenUtils.FormatName(entity_def.name);
+            return GenUtils.FormatName(entity_prefab.type);
         }
 
-        private static string GenEntityNamespace(entity_def entity_def)
+        private static string GenEntityNamespace(EntityPrefab entity_prefab)
         {
             StringBuilder sb = new StringBuilder();
-            string parent_name = entity_def.GetEntityParentFormat();
-            string self_name = entity_def.GetEntitySelfFormat();
+            string parent_name = entity_prefab.GetEntityParentFormat();
+            string self_name = entity_prefab.GetEntitySelfFormat();
 
             if (string.IsNullOrEmpty(parent_name))
             {
@@ -113,11 +108,11 @@ namespace GenCodes
 
             if (string.IsNullOrEmpty(parent_name))
             {
-                sb.Append("public const string TYPE = \"").Append(entity_def.name).Append("\";");
+                sb.Append("public const string TYPE = \"").Append(entity_prefab.type).Append("\";");
             }
             else
             {
-                sb.Append("public new const string TYPE = \"").Append(entity_def.name).Append("\";");
+                sb.Append("public new const string TYPE = \"").Append(entity_prefab.type).Append("\";");
             }
 
             sb.AppendLine();
@@ -126,14 +121,14 @@ namespace GenCodes
             return sb.ToString();
         }
 
-        private static string GenEntityFields(entity_def entity_def)
+        private static string GenEntityFields(XMLEntity entity)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append(GenUtils.str_tab2);
 
-            string parent_name = entity_def.GetEntityParentFormat();
+            string parent_name = entity.GetEntityParentFormat();
 
-            if (!string.IsNullOrEmpty(parent_name) && entity_def.parent != null && entity_def.parent.fields.Count >= 0)
+            if (!string.IsNullOrEmpty(parent_name) && entity.Parent != null && entity.Parent.fields.Count >= 0)
             {
                 sb.Append("public new class Fields").Append(" : ").Append(parent_name).Append(".Fields");
             }
@@ -144,7 +139,7 @@ namespace GenCodes
             sb.AppendLine();
             sb.Append(GenUtils.str_tab2 + "{");
 
-            foreach (field_def field in entity_def.fields)
+            foreach (FieldPrefab field in entity.SelfFields)
             {
                 sb.AppendLine();
                 sb.Append(GenUtils.str_tab3).Append("/// <summary>").AppendLine();
@@ -164,13 +159,13 @@ namespace GenCodes
             return sb.ToString();
         }
 
-        private static string GenEntityTables(entity_def entity_def)
+        private static string GenEntityTables(XMLEntity entity)
         {
             StringBuilder sb = new StringBuilder();
 
-            string parent_name = entity_def.GetEntityParentFormat();
+            string parent_name = entity.GetEntityParentFormat();
 
-            if (!string.IsNullOrEmpty(parent_name) && entity_def.parent != null && entity_def.parent.tables.Count >= 0)
+            if (!string.IsNullOrEmpty(parent_name) && entity.Parent != null && entity.Parent.tables.Count >= 0)
             {
                 sb.Append(GenUtils.str_tab2 + "public new class Tables").Append(" : ").Append(parent_name).Append(".Tables");
 
@@ -184,7 +179,7 @@ namespace GenCodes
             sb.Append(GenUtils.str_tab2 + "{");
             sb.AppendLine();
 
-            foreach (table_def table in entity_def.tables)
+            foreach (TablePrefab table in entity.SelfTables)
             {
                 string className = FormatSplit(table.name);
                 sb.Append(GenUtils.str_tab3).Append("public class ").Append(className.ToString());
@@ -201,7 +196,7 @@ namespace GenCodes
 
                 sb.AppendLine();
 
-                foreach (table_def.column_def column in table.columns)
+                foreach (TablePrefab.ColumnPrefab column in table.columns.Values)
                 {
                     sb.AppendLine();
                     sb.Append(GenUtils.str_tab4).Append("/// <summary>").AppendLine();

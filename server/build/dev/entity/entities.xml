@@ -1,0 +1,6 @@
+<entities>
+    <entity type="player" path="player.xml"/>
+    <entity type="item" path="item.xml">
+        <entity type="equip" path="equip.xml"/>
+    </entity>
+</entities>

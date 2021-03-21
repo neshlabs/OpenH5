@@ -1,23 +1,170 @@
-{
-    "root": 
-    [
-        {
-            "type": "player",
-            "path": "entity/player.json",
-            "priority": 1
-        },
-        {
-            "type": "item",
-            "path": "entity/item.json",
-            "priority": 1,
-            "children": 
-            [
-                {
-                    "type": "equip",
-                    "path": "entity/equip.json",
-                    "priority": 1
-                }
-            ]
+﻿{
+  "player": {
+    "type": "player",
+    "priority": 0,
+    "fields": {
+      "level": {
+        "name": "level",
+        "type": "Int",
+        "save": true,
+        "sync": true,
+        "desc": "等级"
+      },
+      "nick_name": {
+        "name": "nick_name",
+        "type": "String",
+        "save": true,
+        "sync": true,
+        "desc": "名字"
+      }
+    },
+    "tables": {
+      "objective_table": {
+        "name": "objective_table",
+        "save": true,
+        "sync": true,
+        "desc": "目标表",
+        "cols": 2,
+        "columns": {
+          "0": {
+            "index": 0,
+            "name": "id",
+            "type": "Int",
+            "desc": "目标编号"
+          },
+          "1": {
+            "index": 1,
+            "name": "status",
+            "type": "Int",
+            "desc": "目标状态"
+          }
         }
+      },
+      "quest_table": {
+        "name": "quest_table",
+        "save": true,
+        "sync": true,
+        "desc": "任务表",
+        "cols": 3,
+        "columns": {
+          "0": {
+            "index": 0,
+            "name": "id",
+            "type": "Int",
+            "desc": "任务编号"
+          },
+          "1": {
+            "index": 1,
+            "name": "status",
+            "type": "Int",
+            "desc": "任务状态"
+          },
+          "2": {
+            "index": 2,
+            "name": "accept_time",
+            "type": "Time",
+            "desc": "接受时间"
+          }
+        }
+      }
+    },
+    "ancestors": []
+  },
+  "item": {
+    "type": "item",
+    "priority": 0,
+    "fields": {
+      "entry": {
+        "name": "entry",
+        "type": "Int",
+        "save": true,
+        "sync": true,
+        "desc": "道具编号"
+      },
+      "count": {
+        "name": "count",
+        "type": "Int",
+        "save": true,
+        "sync": true,
+        "desc": "堆叠数量"
+      }
+    },
+    "tables": {
+      "star_table": {
+        "name": "star_table",
+        "save": true,
+        "sync": true,
+        "desc": "强化星级表",
+        "cols": 2,
+        "columns": {
+          "0": {
+            "index": 0,
+            "name": "id",
+            "type": "Int",
+            "desc": "强化编号"
+          },
+          "1": {
+            "index": 1,
+            "name": "level",
+            "type": "Int",
+            "desc": "强化等级"
+          }
+        }
+      }
+    },
+    "ancestors": []
+  },
+  "equip": {
+    "type": "equip",
+    "priority": 0,
+    "fields": {
+      "color": {
+        "name": "color",
+        "type": "Int",
+        "save": true,
+        "sync": true,
+        "desc": "品质等级"
+      },
+      "entry": {
+        "name": "entry",
+        "type": "Int",
+        "save": true,
+        "sync": true,
+        "desc": "道具编号"
+      },
+      "count": {
+        "name": "count",
+        "type": "Int",
+        "save": true,
+        "sync": true,
+        "desc": "堆叠数量"
+      }
+    },
+    "tables": {
+      "star_table": {
+        "name": "star_table",
+        "save": true,
+        "sync": true,
+        "desc": "强化星级表",
+        "cols": 2,
+        "columns": {
+          "0": {
+            "index": 0,
+            "name": "id",
+            "type": "Int",
+            "desc": "强化编号"
+          },
+          "1": {
+            "index": 1,
+            "name": "level",
+            "type": "Int",
+            "desc": "强化等级"
+          }
+        }
+      }
+    },
+    "ancestors": [
+      "item"
     ]
+  }
 }

@@ -72,15 +72,15 @@ namespace Nesh.Engine.Node
                         case CacheOption.DelEntity:
                             {
                                 string entity_type = batch.Get<string>(2);
-                                entity_def entity_def = DefineManager.GetEntity(entity_type);
-                                if (entity_def == null)
+                                EntityPrefab entity_prefab = Prefabs.GetEntity(entity_type);
+                                if (entity_prefab == null)
                                 {
                                     continue;
                                 }
 
-                                foreach (table_def table_def in entity_def.tables)
+                                foreach (TablePrefab table_prefab in entity_prefab.tables.Values)
                                 {
-                                    string table_key = CacheUtils.BuildTable(entity_id, table_def.name);
+                                    string table_key = CacheUtils.BuildTable(entity_id, table_prefab.name);
                                     Task table_task = trans.KeyDeleteAsync(table_key);
                                 }
 

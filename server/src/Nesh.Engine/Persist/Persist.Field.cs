@@ -14,13 +14,13 @@ namespace Nesh.Engine.Node
     {
         private async Task PushPersistFields(Entity entity)
         {
-            entity_def entity_def = DefineManager.GetEntity(entity.Type);
-            if (entity_def == null)
+            EntityPrefab entity_prefab = Prefabs.GetEntity(entity.Type);
+            if (entity_prefab == null)
             {
                 return;
             }
 
-            var database = _IMongoClient.GetDatabase(PersistUtils.EntityDB);
+            var database = _IMongoClient.GetDatabase(PersistUtils.ENTITY_DB);
 
             var collection = database.GetCollection<BsonDocument>(entity.Type);
 
@@ -31,58 +31,58 @@ namespace Nesh.Engine.Node
             Field[] fields = entity.GetFields();
             foreach (Field field in fields)
             {
-                field_def field_def = entity_def.GetField(field.Name);
-                if (field_def == null)
+                FieldPrefab field_prefab = entity_prefab.fields[field.Name];
+                if (field_prefab == null)
                 {
                     continue;
                 }
-                if (!field_def.save)
+                if (!field_prefab.save)
                 {
                     continue;
                 }
 
-                switch (field_def.type)
+                switch (field_prefab.type)
                 {
                     case VarType.Bool:
                         {
-                            models.Add(field_def.name, field.Get<bool>());
+                            models.Add(field_prefab.name, field.Get<bool>());
                         }
                         break;
                     case VarType.Int:
                         {
-                            models.Add(field_def.name, field.Get<int>());
+                            models.Add(field_prefab.name, field.Get<int>());
                         }
                         break;
                     case VarType.Float:
                         {
-                            models.Add(field_def.name, field.Get<float>());
+                            models.Add(field_prefab.name, field.Get<float>());
                         }
                         break;
                     case VarType.Long:
                         {
-                            models.Add(field_def.name, field.Get<long>());
+                            models.Add(field_prefab.name, field.Get<long>());
                         }
                         break;
                     case VarType.Nuid:
                         {
                             BsonDocument document = BsonDocument.Parse(JsonUtils.ToJson(field.Get<Nuid>()));
-                            models.Add(field_def.name, document);
+                            models.Add(field_prefab.name, document);
                         }
                         break;
                     case VarType.Time:
                         {
-                            models.Add(field_def.name, field.Get<DateTime>());
+                            models.Add(field_prefab.name, field.Get<DateTime>());
                         }
                         break;
                     case VarType.String:
                         {
-                            models.Add(field_def.name, field.Get<string>());
+                            models.Add(field_prefab.name, field.Get<string>());
                         }
                         break;
                     case VarType.List:
                         {
                             BsonDocument document = BsonDocument.Parse(JsonUtils.ToJson(field.Get<NList>()));
-                            models.Add(field_def.name, document);
+                            models.Add(field_prefab.name, document);
                         }
                         break;
                 }
@@ -101,7 +101,7 @@ namespace Nesh.Engine.Node
 
         private async Task PullPersistFields(string entity_type)
         {
-            var database = _IMongoClient.GetDatabase(PersistUtils.EntityDB);
+            var database = _IMongoClient.GetDatabase(PersistUtils.ENTITY_DB);
 
             var collection = database.GetCollection<BsonDocument>(entity_type);
 
@@ -111,7 +111,7 @@ namespace Nesh.Engine.Node
             //获取数据
             var result = (await collection.FindAsync<BsonDocument>(filter)).ToList();
 
-            entity_def entity_def = DefineManager.GetEntity(entity_type);
+            EntityPrefab entity_prefab = Prefabs.GetEntity(entity_type);
 
             foreach (BsonDocument doc in result)
             {
@@ -119,21 +119,21 @@ namespace Nesh.Engine.Node
                 long origin = doc.GetValue("origin").AsInt64;
                 Entity entity = EntityManager.Create(Nuid.New(unique, origin), entity_type);
 
-                foreach (field_def field_def in entity_def.all_fields)
+                foreach (FieldPrefab field_prefab in entity_prefab.fields.Values)
                 {
-                    if (!field_def.save)
+                    if (!field_prefab.save)
                     {
                         continue;
                     }
 
-                    Field field = entity.GetField(field_def.name);
+                    Field field = entity.GetField(field_prefab.name);
                     if (field == null)
                     {
                         continue;
                     }
 
-                    BsonValue bsonValue = doc.GetValue(field_def.name);
-                    switch (field_def.type)
+                    BsonValue bsonValue = doc.GetValue(field_prefab.name);
+                    switch (field_prefab.type)
                     {
                         case VarType.Bool:
                             {

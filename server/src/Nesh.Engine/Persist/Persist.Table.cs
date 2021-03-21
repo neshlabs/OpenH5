@@ -1,6 +1,5 @@
 ﻿using MongoDB.Bson;
 using Nesh.Core.Data;
-using Nesh.Core.Manager;
 using Nesh.Core.Utils;
 using Nesh.Engine.Utils;
 using System;
@@ -13,26 +12,26 @@ namespace Nesh.Engine.Node
     {
         private async Task PushPersistTables(Entity entity)
         {
-            entity_def entity_def = DefineManager.GetEntity(entity.Type);
-            if (entity_def == null)
+            EntityPrefab entity_prefab = Prefabs.GetEntity(entity.Type);
+            if (entity_prefab == null)
             {
                 return;
             }
 
-            var database = _IMongoClient.GetDatabase(PersistUtils.EntityDB);
+            var database = _IMongoClient.GetDatabase(PersistUtils.ENTITY_DB);
 
             Table[] tables = entity.GetTables();
             foreach (Table table in tables)
             {
                 var collection = database.GetCollection<BsonDocument>(table.Name);
 
-                table_def table_def = entity_def.GetTable(table.Name);
-                if (table_def == null)
+                TablePrefab table_prefab = entity_prefab.tables[table.Name];
+                if (table_prefab == null)
                 {
                     continue;
                 }
 
-                if (!table_def.save)
+                if (!table_prefab.save)
                 {
                     continue;
                 }
@@ -48,9 +47,9 @@ namespace Nesh.Engine.Node
                     models.Add(Global.MARK_UNIQUE, entity.Id.Unique);
                     models.Add(Global.MARK_ROW, row);
 
-                    for (int col = 0; col < table_def.cols; col++)
+                    for (int col = 0; col < table_prefab.cols; col++)
                     {
-                        table_def.column_def column = table_def.columns[col];
+                        TablePrefab.ColumnPrefab column = table_prefab.columns[col];
                         switch (column.type)
                         {
                             case VarType.Bool:

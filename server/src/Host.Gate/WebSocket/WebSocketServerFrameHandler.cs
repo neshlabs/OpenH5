@@ -2,66 +2,50 @@
 using DotNetty.Codecs.Http.WebSockets;
 using DotNetty.Handlers.Timeout;
 using DotNetty.Transport.Channels;
+using Host.Gate.Session;
 using Microsoft.Extensions.Logging;
-using Nesh.Core;
 using Nesh.Core.Data;
 using Nesh.Core.Utils;
 using Orleans;
 using System;
-using System.Threading.Tasks;
 
 namespace Host.Gate.WebSocket
 {
     public sealed class WebSocketServerFrameHandler : SimpleChannelInboundHandler<WebSocketFrame>
     {
+        private readonly ILoggerFactory _LoggerFactory;
+        private readonly IClusterClient _ClusterClient;
         private readonly ILogger _Logger;
-        private readonly IClusterClient _Client;
+        private WSSession _Session;
 
         public WebSocketServerFrameHandler(IClusterClient client, ILoggerFactory loggerFactory)
         {
-            _Client = client;
-            _Logger = loggerFactory.CreateLogger<WebSocketServerFrameHandler>();
+            _ClusterClient = client;
+            _LoggerFactory = loggerFactory;
+            _Logger = _LoggerFactory.CreateLogger<WebSocketServerFrameHandler>();
         }
 
-        protected override async void ChannelRead0(IChannelHandlerContext ctx, WebSocketFrame frame)
+        protected override void ChannelRead0(IChannelHandlerContext ctx, WebSocketFrame frame)
         {
             try
             {
                 if (frame is PingWebSocketFrame)
                 {
-                    await ctx.WriteAsync(new PongWebSocketFrame((IByteBuffer)frame.Content.Retain()));
+                    ctx.WriteAsync(new PongWebSocketFrame((IByteBuffer)frame.Content.Retain()));
                     return;
                 }
 
                 if (frame is TextWebSocketFrame textFrame)
                 {
-                    var msg = textFrame.Text();
-                    if (msg.StartsWith("throw ", StringComparison.OrdinalIgnoreCase))
+                    var json = textFrame.Text();
+                    if (json.StartsWith("throw ", StringComparison.OrdinalIgnoreCase))
                     {
-                        throw new Exception(msg.Substring(6, msg.Length - 6));
+                        throw new Exception(json.Substring(6, json.Length - 6));
                     }
 
-                    /*NList list = JsonUtils.ToObject<NList>(msg);
-                    string data = JsonUtils.ToJson(list);
-                    // Echo the frame
-                    await ctx.Channel.WriteAndFlushAsync(new TextWebSocketFrame(data));*/
-
-
-                    long id1 = 12058624;
-                    INode node1 = _Client.GetGrain<INode>(id1);
-                    NList list = await node1.GetEntities();
-                    //NList list2 = NList.New().Add(true).Add(1000).Add("adasdasdasdas");
-                    string data = JsonUtils.ToJson(list);
-
-                    await ctx.Channel.WriteAndFlushAsync(new TextWebSocketFrame(data));
-
+                    NList recv_msg = JsonUtils.ToObject<NList>(json);
+                    _Session.IncomingMessage(recv_msg);
                     return;
-                }
-
-                if (frame is BinaryWebSocketFrame binaryFrame)
-                {
-                    // Echo the frame
-                    await ctx.Channel.WriteAndFlushAsync(new BinaryWebSocketFrame(binaryFrame.Content.RetainedDuplicate()));
                 }
             }
             catch (Exception ex)
@@ -98,11 +82,13 @@ namespace Host.Gate.WebSocket
 
         public override void ChannelRegistered(IChannelHandlerContext context)
         {
+            _Session = new WSSession(_ClusterClient, _LoggerFactory, context);
             base.ChannelRegistered(context);
         }
 
         public override void ChannelUnregistered(IChannelHandlerContext context)
         {
+            _Session.Close();
             base.ChannelUnregistered(context);
         }
     }

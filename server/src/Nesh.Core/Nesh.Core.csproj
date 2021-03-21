@@ -13,7 +13,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Orleans.Core" Version="3.4.1" />
     <PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="3.4.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1-beta1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1-beta2" />
     <PackageReference Include="protobuf-net" Version="3.0.73" />
   </ItemGroup>
 

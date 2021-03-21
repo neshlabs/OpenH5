@@ -1,3 +1,4 @@
+import { TypedJSON } from "typedjson";
 import { NEvents } from "./NEvents";
 import NList, { Nuid, Field, Table, Entity } from "./NList";
 
@@ -7,18 +8,12 @@ export interface INode
     RCField(entity_type: string, field_name: string, field_event: FieldEvent, callback:(node: INode, nuid: Nuid, args: NList) => void) : void;
     RCTable(entity_type: string, table_name: string, table_event: TableEvent, callback:(node: INode, nuid: Nuid, args: NList) => void) : void;
 
-    /*GetFieldBool(nuid: Nuid, field_name: string) : boolean;
-    GetFieldInt(nuid: Nuid, field_name: string) : number;
-    GetFieldLong(nuid: Nuid, field_name: string) : number;
-    GetFieldFloat(nuid: Nuid, field_name: string) : number;
-    GetFieldString(nuid: Nuid, field_name: string) : string;
-    GetFieldTime(nuid: Nuid, field_name: string) : Date;
-    GetFieldNuid(nuid: Nuid, field_name: string) : Nuid;
-    GetFieldList(nuid: Nuid, field_name: string) : NList;
+    GetField(nuid: Nuid, field_name: string) : any;
 
-    FindRowBool(nuid: Nuid, table_name: string, col: number, value: boolean) : number;
-
-    GetRowColBool(nuid: Nuid, table_name: string, row: number, col: number) : boolean;*/
+    FindRow(nuid: Nuid, table_name: string, col: number, value: any) : number;
+    GetRowCol(nuid: Nuid, table_name: string, row: number, col: number) : any;
+    GetRowValue(nuid: Nuid, table_name: string, row: number) : NList;
+    GetRows(nuid: Nuid, table_name: string) : NList;
 }
 
 export enum FieldEvent
@@ -50,14 +45,14 @@ export class ClientNode implements INode
 {
     public static readonly NULL_BOOL: boolean = false;
     public static readonly INVALID_ROW: number = -1;
-    private _Entitas: Map<string, Entity>;
+    private _Entitas: Map<Nuid, Entity>;
     private _FieldEvents: NEvents<[string, string, FieldEvent]>;
     private _TableEvents: NEvents<[string, string, TableEvent]>;
     private _EntityEvents: NEvents<[string, EntityEvent]>;
 
     constructor()
     {
-        this._Entitas = new Map<string, Entity>();
+        this._Entitas = new Map<Nuid, Entity>();
         this._FieldEvents = new NEvents<[string, string, FieldEvent]>();
         this._TableEvents = new NEvents<[string, string, TableEvent]>();
         this._EntityEvents = new NEvents<[string, EntityEvent]>();
@@ -85,148 +80,214 @@ export class ClientNode implements INode
 
     LoadEntity(entity: Entity)
     {
-        var id: string = String(entity.Id.Unique) + ":" + String(entity.Id.Origin);
-        console.log("LoadEntity" + id);
-        if (this._Entitas.has(id))
+        //var id: string = String(entity.Id.Unique) + ":" + String(entity.Id.Origin);
+        let id:Nuid = entity.Id;
+        console.log("LoadEntity" + id.toString());
+        if (this.HasEntity(id))
         {
-            this._Entitas.delete(id);
+            this.DelEntity(id);
         }
 
         this._Entitas.set(id, entity);
     }
 
-    GetField(nuid: Nuid, field_name: string): any 
+    DelEntity(nuid: Nuid)
     {
-        let id: string = nuid.toString();
-        let found: Entity = this._Entitas.get(id);
-
-        if (!this._Entitas.has(id)) return undefined;
-        if (found == null) return false;
-
-        let field: Field = found._Fields.get(field_name);
-        if (field == null) return false;
-
-        return field.Var.Value;
-    }
-
-    /*GetFieldBool(nuid: Nuid, field_name: string): boolean 
-    {
-        let found: Entity = this._Entitas.get(nuid);
-        if (found == null) return false;
-
-        let field = found._Fields.get(field_name);
-        if (field == null) return false;
-
-        return field.Var.Value;
-    }
-
-    GetFieldInt(nuid: Nuid, field_name: string): number 
-    {
-        let found: Entity = this._Entitas.get(nuid);
-        if (found == null) return undefined;
-
-        let field = found._Fields.get(field_name);
-        if (field == null) return undefined;
-
-        return field.Var.Value;
-    }
-
-    GetFieldLong(nuid: Nuid, field_name: string): number 
-    {
-        let found: Entity = this._Entitas.get(nuid);
-        if (found == null) return undefined;
-
-        let field = found._Fields.get(field_name);
-        if (field == null) return undefined;
-
-        return field.Var.Value;
-    }
-
-    GetFieldFloat(nuid: Nuid, field_name: string): number 
-    {
-        let found: Entity = this._Entitas.get(nuid);
-        if (found == null) return undefined;
-
-        let field = found._Fields.get(field_name);
-        if (field == null) return undefined;
-
-        return field.Var.Value;
-    }
-
-    GetFieldString(nuid: Nuid, field_name: string): string 
-    {
-        let found: Entity = this._Entitas.get(nuid);
-        if (found == null) return undefined;
-
-        let field = found._Fields.get(field_name);
-        if (field == null) return undefined;
-
-        return field.Var.Value;
-    }
-
-    GetFieldNuid(nuid: Nuid, field_name: string): Nuid 
-    {
-        let found: Entity = this._Entitas.get(nuid);
-        if (found == null) return undefined;
-
-        let field = found._Fields.get(field_name);
-        if (field == null) return undefined;
-
-        return field.Var.Value;
-    }
-
-    GetFieldTime(nuid: Nuid, field_name: string): Date 
-    {
-        let found: Entity = this._Entitas.get(nuid);
-        if (found == null) return undefined;
-
-        let field = found._Fields.get(field_name);
-        if (field == null) return undefined;
-
-        return field.Var.Value;
-    }
-
-    GetFieldList(nuid: Nuid, field_name: string): NList 
-    {
-        let found: Entity = this._Entitas.get(nuid);
-        if (found == null) return undefined;
-
-        let field = found._Fields.get(field_name);
-        if (field == null) return undefined;
-
-        return field.Var.Value;
-    }*/
-
-    /*FindRowBool(nuid: Nuid, table_name: string, col: number, value: boolean): number 
-    {
-        if (!this._Entitas.has(nuid)) return -1;
-
-        let found: Entity = this._Entitas.get(nuid);
-        let table = found._Tables.get(table_name);
-        if (table == null) return undefined;
-
-        table._RowValues.forEach((row_value, row) => {
-            let v = row_value.GetBool(col);
-            if (v == value)
+        this._Entitas.forEach((value, key)=>
+        {
+            if (nuid.equals(key))
             {
-                return row;
+                this._Entitas.delete(key);
+                return;
+            }
+        });
+    }
+
+    HasEntity(nuid: Nuid): boolean
+    {
+        let found = false;
+        this._Entitas.forEach((value, key)=>
+        {
+            if (nuid.equals(key))
+            {
+                found = true;
+                return;
             }
         });
 
-        return ClientNode.INVALID_ROW;
+        return found;
     }
 
-    GetRowColBool(nuid: Nuid, table_name: string, row: number, col: number): boolean 
+    GetEntity(nuid: Nuid): Entity
     {
-        if (!this._Entitas.has(nuid)) return ClientNode.NULL_BOOL;
+        let entity = null;
+        this._Entitas.forEach((value, key)=>
+        {
+            if (nuid.equals(key))
+            {
+                entity = value;
+                return;
+            }
+        });
 
-        let found: Entity = this._Entitas.get(nuid);
-        let table = found._Tables.get(table_name);
-        if (table == null) return ClientNode.NULL_BOOL;
+        return entity;
+    }
 
-        if (!table._RowValues.has(row)) return ClientNode.NULL_BOOL;
+    SetField(nuid: Nuid, field_name: string, filed_value: any)
+    {
+        let id:Nuid = nuid;
+        let found: Entity = this.GetEntity(id);
 
-        let row_value = table._RowValues.get(row);
-        return row_value.GetBool(col);
-    }*/
+        if (found == null) return;
+
+        let field: Field = found._Fields[field_name];
+        if (field == null) return;
+
+        field.Var.Value = filed_value;
+    }
+
+    GetField(nuid: Nuid, field_name: string): any 
+    {
+        //let id: string = nuid.toString();
+        let id:Nuid = nuid;
+        let found: Entity = this.GetEntity(id);
+
+        if (found == null) return undefined;
+
+        let field: Field = found._Fields[field_name];
+
+        return field.Var.Value;
+    }
+
+    SetRowCol(nuid: Nuid, table_name: string, row: number, value: any)
+    {
+        let id:Nuid = nuid;
+        let found: Entity = this.GetEntity(id);
+
+        if (found == null) return;
+
+        let table:Table = found._Tables[table_name];
+        if (table == null) return;
+
+        let row_value:NList = table._RowValues[row];
+
+        if (row_value == null) return;
+
+        row_value._List[row].Value = value;
+    }
+
+    SetRowValue(nuid: Nuid, table_name: string, row: number, row_value: NList)
+    {
+        let id:Nuid = nuid;
+        let found: Entity = this.GetEntity(id);
+
+        if (found == null) return;
+
+        let table:Table = found._Tables[table_name];
+        if (table == null) return;
+
+        table._RowValues[row] = row_value;
+    }
+
+    GetRowValue(nuid: Nuid, table_name: string, row: number) :NList
+    {
+        let id:Nuid = nuid;
+        let found: Entity = this.GetEntity(id);
+
+        if (found == null) return undefined;
+
+        let table:Table = found._Tables[table_name];
+
+        let row_value:NList = table._RowValues[row];
+
+        if (row_value == null) return undefined;
+
+        return row_value;
+    }
+
+    GetRows(nuid: Nuid, table_name: string) :NList
+    {
+        let id:Nuid = nuid;
+        let found: Entity = this.GetEntity(id);
+
+        if (found == null) return undefined;
+
+        let table:Table = found._Tables[table_name];
+        if (table == null) return undefined;
+
+        let rows: NList = NList.New();
+        for(const temp_row in table._RowValues)
+        {
+            let row: number = Number(temp_row);
+            rows.AddInt(row);
+        }
+
+        return rows;
+    }
+
+    GetRowCol(nuid: Nuid, table_name: string, row: number, col: number) :any
+    {
+        let id:Nuid = nuid;
+        let found: Entity = this.GetEntity(id);
+
+        if (found == null) return undefined;
+
+        let table:Table = found._Tables[table_name];
+
+        let row_value:NList = table._RowValues[row];
+
+        if (row_value == null) return undefined;
+
+        return row_value._List[col].Value;
+    }
+
+    FindRow(nuid: Nuid, table_name: string, col: number, value: any): number 
+    {
+        let id:Nuid = nuid;
+        let found: Entity = this.GetEntity(id);
+
+        if (found == null) return ClientNode.INVALID_ROW;
+
+        let table:Table = found._Tables[table_name];
+
+        if (table == null) return undefined;
+
+        let found_row: string;
+        for(const temp_row in table._RowValues)
+        {
+            let row_value:NList = table._RowValues[temp_row];
+            if (row_value._List[col].Value == value)
+            {
+                found_row = temp_row;
+                break;
+            }
+        }
+
+        let row: number = Number(found_row);
+        return row;
+    }
+
+    DelRow(nuid: Nuid, table_name: string, row: number)
+    {
+        let id:Nuid = nuid;
+        let found: Entity = this.GetEntity(id);
+
+        if (found == null) return;
+
+        let table:Table = found._Tables[table_name];
+
+        table._RowValues.delete(row);
+    }
+
+    ClearTable(nuid: Nuid, table_name: string)
+    {
+        let id:Nuid = nuid;
+        let found: Entity = this.GetEntity(id);
+
+        if (found == null) return;
+
+        let table:Table = found._Tables[table_name];
+
+        table._RowValues.clear();
+    }
 }

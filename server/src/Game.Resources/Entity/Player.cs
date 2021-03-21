@@ -26,11 +26,11 @@
                 public const string TABLE_NAME = "objective_table";
 
                 /// <summary>
-                /// 编号 Int
+                /// 目标编号 Int
                 /// </summary>
                 public const int COL_ID = 0;
                 /// <summary>
-                /// 状态 Int
+                /// 目标状态 Int
                 /// </summary>
                 public const int COL_STATUS = 1;
             }
@@ -42,11 +42,11 @@
                 public const string TABLE_NAME = "quest_table";
 
                 /// <summary>
-                /// 编号 Int
+                /// 任务编号 Int
                 /// </summary>
                 public const int COL_ID = 0;
                 /// <summary>
-                /// 状态 Int
+                /// 任务状态 Int
                 /// </summary>
                 public const int COL_STATUS = 1;
                 /// <summary>

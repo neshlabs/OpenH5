@@ -36,6 +36,8 @@ namespace Game.Module
 
             await node.AddRow(id, Player.Tables.QuestTable.TABLE_NAME, NList.New().Add(1001).Add(1).Add(TimeUtils.Now));
 
+            await node.AddRow(id, Player.Tables.QuestTable.TABLE_NAME, NList.New().Add(2002).Add(2).Add(TimeUtils.Now));
+
             await node.Create("item", id, NList.New());
         }
 

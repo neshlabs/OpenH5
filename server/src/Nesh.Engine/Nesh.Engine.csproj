@@ -13,13 +13,15 @@
     <PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="3.4.1" />
     <PackageReference Include="Microsoft.Orleans.Runtime.Abstractions" Version="3.4.1" />
     <PackageReference Include="MongoDB.Driver" Version="2.12.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1-beta1" />
-    <PackageReference Include="StackExchange.Redis.Extensions.Core" Version="6.3.6" />
-    <PackageReference Include="StackExchange.Redis.Extensions.Protobuf" Version="6.3.6" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1-beta2" />
+    <PackageReference Include="StackExchange.Redis.Extensions.Core" Version="6.4.5" />
+    <PackageReference Include="StackExchange.Redis.Extensions.Protobuf" Version="6.4.5" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Game.Resources\Game.Resources.csproj" />
     <ProjectReference Include="..\Nesh.Core\Nesh.Core.csproj" />
+    <ProjectReference Include="..\Nesh.Repository\Nesh.Repository.csproj" />
   </ItemGroup>
 
 </Project>
